@@ -1,8 +1,10 @@
 #ifndef _MOTOR_STRUCT_H_
 #define _MOTOR_STRUCT_H_
 #include <stdint.h>
+#pragma pack(1)
 typedef struct motor_cmd_struct
 {
+    uint8_t ID;
     int32_t position;
     int32_t velocity;
     int32_t torque;
@@ -11,8 +13,10 @@ typedef struct motor_cmd_struct
 } motor_cmd_t;
 typedef struct motor_back_struct
 {
+    uint8_t ID;
     int32_t position;
     int32_t velocity;
     int32_t torque;
 } motor_back_t;
+#pragma pack()
 #endif
