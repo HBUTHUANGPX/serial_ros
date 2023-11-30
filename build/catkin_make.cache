@@ -1,0 +1,2 @@
+serial_test
+-DCATKIN_DEVEL_PREFIX=/home/hpx/serial_ros/devel -DCMAKE_INSTALL_PREFIX=/home/hpx/serial_ros/install -G Unix Makefiles

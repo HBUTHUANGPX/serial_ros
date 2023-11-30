@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/hpx/serial_ros/install/setup.sh
