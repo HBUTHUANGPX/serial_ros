@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
     // a.send(0x04, 0, 0, 0, 30000, 0);
     // a.send(0x04, 0, 0, 0, 30000, 0);
-    ros::Rate r(10);
+    ros::Rate r(100);
     while (ros::ok())
     {
         ROS_INFO_STREAM("START");
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         ROS_INFO_STREAM("END"); // STEP2 -> END 1.7ms  START -> END 1.71
         r.sleep();
     }
-    //
+    ////
     newthread_a.join();
     newthread_b.join();
 
@@ -35,6 +35,6 @@ int main(int argc, char **argv)
     // a.send(0x04,0,0,0,30000,0);
     // a.send(0x03,0,0,0,30000,0);
     // a.send(0x02,0,0,0,30000,0);
-    // a.send(0x01,0,0,0,30000,0);
+    a.send(0x01,0,0,0,30000,0);
     return 0;
 }
