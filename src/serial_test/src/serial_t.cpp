@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         ROS_INFO_STREAM("END"); // STEP2 -> END 1.7ms  START -> END 1.71
         r.sleep();
     }
-    ////
+    //////
     newthread_a.join();
     newthread_b.join();
 
