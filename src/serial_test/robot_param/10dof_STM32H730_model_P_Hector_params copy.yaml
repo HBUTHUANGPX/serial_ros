@@ -1,0 +1,64 @@
+robot:
+  robot_name: "HuangPx HECTOR"
+  arm_dof: 0
+  leg_dof: 5
+  Serial_Type: "/dev/ttyUSB"
+  CAN_Type: "CAN-FD BRS" # CAN-FD\CAN-FD BRS\CAN 2.0B
+  CANboard_type: "STM32 H730"
+  CANboard_num: 2
+  CANboard:
+    No_1_CANboard:
+      CANport_num: 3
+      CANport:
+        CANport_1:
+          motor_num: 2
+          motor:
+            motor1:
+                type: 0
+                id: 5
+            motor2:
+                type: 0
+                id: 4
+        CANport_2:
+          motor_num: 2
+          motor:
+              motor1:
+                type: 0
+                id: 3
+              motor2:
+                type: 0
+                id: 2
+        CANport_3:
+          motor_num: 1
+          motor:
+            motor1:
+                type: 1
+                id: 1
+    No_2_CANboard:
+      CANport_num: 3
+      CANport:
+        CANport_1:
+          motor_num: 2
+          motor:
+            motor1:
+                type: 0
+                id: 5
+            motor2:
+                type: 0
+                id: 4
+        CANport_2:
+          motor_num: 2
+          motor:
+              motor1:
+                type: 0
+                id: 3
+              motor2:
+                type: 0
+                id: 2
+        CANport_3:
+          motor_num: 1
+          motor:
+            motor1:
+                type: 1
+                id: 1
+              

@@ -1,8 +1,22 @@
 #include "ros/ros.h"
 #include "../include/serial_struct.h"
+#include "../include/hardware/robot.h"
 #include <iostream>
 #include <thread>
 
+void read_params()
+{
+    ros::NodeHandle n;
+    std::string robot_name;
+    // if (n.getParam("robot/robot_name",robot_name)){ROS_INFO("Got params: %s",robot_name.c_str());}else{ROS_ERROR("Faile to get params");}
+    // int CANboard_num;
+    // if (n.getParam("robot/CANboard",CANboard_num)){ROS_INFO("Got params: %d",CANboard_num);}else{ROS_ERROR("Faile to get params");}
+    // for (size_t i = 0; i < CANboard_num; i++)
+    // {
+    //     /* code */
+    // }
+    
+}
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "my_serial_port");
@@ -14,11 +28,14 @@ int main(int argc, char **argv)
     lively_serial b(&str1, 4000000, 1);
     std::thread newthread_a(&lively_serial::recv, &a);
     std::thread newthread_b(&lively_serial::recv, &a);
-
+    // todo: 
     // a.send(0x04, 0, 0, 0, 30000, 0);
     // a.send(0x04, 0, 0, 0, 30000, 0);
     ros::Rate r(100);
-    while (ros::ok())
+    robot rb(&a);
+
+    while (0)
+    // while (ros::ok())
     {
         ROS_INFO_STREAM("START");
         a.send(0x04, 0, 0, 0, 30000, 0);
