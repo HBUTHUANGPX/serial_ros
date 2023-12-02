@@ -15,9 +15,11 @@ public:
         if (n.getParam("robot/CANboard/No_"+
                         std::to_string(_CANboard_num)+
                         "_CANboard/CANport/CANport_"+std::to_string(_CANport_num)+"/motor_num",motor_num))
-            {ROS_INFO("Got params motor_num: %d",motor_num);}
+        {
+            // ROS_INFO("Got params motor_num: %d",motor_num);
+        }
         else
-            {ROS_ERROR("Faile to get params");}
+            {ROS_ERROR("Faile to get params motor_num");}
         for (size_t i = 1; i <= motor_num; i++)
         {
             Motors.push_back(motor(i,_CANport_num,_CANboard_num,ser));

@@ -12,16 +12,19 @@ private:
     std::vector<canport> CANport;
     // std::vector<motor> motor;
 public:
-    canboard(int _CANboard_ID,lively_serial *ser)
+    canboard(int _CANboard_ID,std::vector<lively_serial *> *ser)
     {
             if (n.getParam("robot/CANboard/No_"+
                             std::to_string(_CANboard_ID)+"_CANboard/CANport_num",CANport_num))
-                {ROS_INFO("Got params CANport_num: %d",CANport_num);}
-            else
-                {ROS_ERROR("Faile to get params");}
-            for (size_t j = 1; j <= CANport_num; j++)
             {
-                CANport.push_back(canport(j,_CANboard_ID,ser));
+                // ROS_INFO("Got params CANport_num: %d",CANport_num);
+            }
+            else
+                {ROS_ERROR("Faile to get params CANport_num");}
+            for (size_t j = 1; j <= CANport_num; j++) //一个串口对应一个CANport
+            {
+                std::cout<<(_CANboard_ID-1)*CANport_num+j-1<<std::endl;
+                CANport.push_back(canport(j,_CANboard_ID,(*ser)[(_CANboard_ID-1)*CANport_num+j-1]));
             }
     }
     ~canboard(){}

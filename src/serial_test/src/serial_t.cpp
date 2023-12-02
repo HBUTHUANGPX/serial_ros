@@ -15,7 +15,6 @@ void read_params()
     // {
     //     /* code */
     // }
-    
 }
 int main(int argc, char **argv)
 {
@@ -23,26 +22,35 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     // std::string str = "/dev/ttyACM0";
     std::string str0 = "/dev/ttyUSB0";
-    lively_serial a(&str0, 4000000, 1);
     std::string str1 = "/dev/ttyUSB1";
-    lively_serial b(&str1, 4000000, 1);
-    std::thread newthread_a(&lively_serial::recv, &a);
-    std::thread newthread_b(&lively_serial::recv, &a);
-    // todo: 
-    // a.send(0x04, 0, 0, 0, 30000, 0);
-    // a.send(0x04, 0, 0, 0, 30000, 0);
+    std::string str2 = "/dev/ttyUSB2";
+    std::string str3 = "/dev/ttyUSB3";
+    std::vector<lively_serial *> ser;
+    lively_serial *s1 = new lively_serial(&str0, 4000000, 1);
+    lively_serial *s2 = new lively_serial(&str1, 4000000, 1);
+    lively_serial *s3 = new lively_serial(&str2, 4000000, 1);
+    lively_serial *s4 = new lively_serial(&str3, 4000000, 1);
+    ser.push_back(s1);
+    ser.push_back(s2);
+    ser.push_back(s3);
+    ser.push_back(s4);
+    std::thread newthread_a(&lively_serial::recv, ser[0]);
+    std::thread newthread_b(&lively_serial::recv, ser[1]);
+    std::thread newthread_c(&lively_serial::recv, ser[2]);
+    std::thread newthread_d(&lively_serial::recv, ser[3]);
     ros::Rate r(100);
-    robot rb(&a);
+    robot rb(&ser);
 
-    while (0)
-    // while (ros::ok())
+    ROS_INFO("\033[1;32mSTART\033[0m");
+
+    while (ros::ok())
     {
         ROS_INFO_STREAM("START");
-        a.send(0x04, 0, 0, 0, 30000, 0);
-        ROS_INFO_STREAM("mid");
-        b.send(0x04, 0, 0, 0, 30000, 0);
+        for (motor m : rb.Motors)
+        {
+            m.send(0, 0, 0, 30000, 0);
+        }
         ROS_INFO_STREAM("END"); // STEP2 -> END 1.7ms  START -> END 1.71
-        r.sleep();
     }
     //////
     newthread_a.join();
@@ -52,6 +60,6 @@ int main(int argc, char **argv)
     // a.send(0x04,0,0,0,30000,0);
     // a.send(0x03,0,0,0,30000,0);
     // a.send(0x02,0,0,0,30000,0);
-    a.send(0x01,0,0,0,30000,0);
+    // a.send(0x01,0,0,0,30000,0);
     return 0;
 }
