@@ -20,24 +20,19 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "my_serial_port");
     ros::NodeHandle n;
-    // std::string str = "/dev/ttyACM0";
-    std::string str0 = "/dev/ttyUSB0";
-    std::string str1 = "/dev/ttyUSB1";
-    std::string str2 = "/dev/ttyUSB2";
-    std::string str3 = "/dev/ttyUSB3";
+    std::vector<std::string> str;
+    std::vector<std::thread> threads;
     std::vector<lively_serial *> ser;
-    lively_serial *s1 = new lively_serial(&str0, 4000000, 1);
-    lively_serial *s2 = new lively_serial(&str1, 4000000, 1);
-    lively_serial *s3 = new lively_serial(&str2, 4000000, 1);
-    lively_serial *s4 = new lively_serial(&str3, 4000000, 1);
-    ser.push_back(s1);
-    ser.push_back(s2);
-    ser.push_back(s3);
-    ser.push_back(s4);
-    std::thread newthread_a(&lively_serial::recv, ser[0]);
-    std::thread newthread_b(&lively_serial::recv, ser[1]);
-    std::thread newthread_c(&lively_serial::recv, ser[2]);
-    std::thread newthread_d(&lively_serial::recv, ser[3]);
+    for (size_t i = 0; i < 4; i++)
+    {
+        str.push_back("/dev/ttyUSB" + std::to_string(i));
+    }
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        lively_serial *s = new lively_serial(&str[i], 4000000, 1);
+        ser.push_back(s);
+        threads.push_back(std::thread(&lively_serial::recv, s));
+    }
     ros::Rate r(100);
     robot rb(&ser);
 
@@ -49,12 +44,15 @@ int main(int argc, char **argv)
         for (motor m : rb.Motors)
         {
             m.send(0, 0, 0, 30000, 0);
+            r.sleep();
         }
         ROS_INFO_STREAM("END"); // STEP2 -> END 1.7ms  START -> END 1.71
     }
     //////
-    newthread_a.join();
-    newthread_b.join();
+    for (auto &thread : threads)
+    {
+        thread.join();
+    }
 
     ros::spin();
     // a.send(0x04,0,0,0,30000,0);
