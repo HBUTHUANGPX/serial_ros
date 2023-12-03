@@ -68,6 +68,7 @@ public:
     }
     ~lively_serial();
     void send(uint8_t ID,int32_t position, int32_t velocity, int32_t torque, int16_t Kp, int16_t Kd);
+    void send(cdc_acm_rx_message_t *_cdc_acm_rx_message);
     void recv();
     lively_serial(const lively_serial&) = delete;
     lively_serial& operator=(const lively_serial&) = delete;

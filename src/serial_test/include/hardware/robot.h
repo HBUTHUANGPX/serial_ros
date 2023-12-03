@@ -3,6 +3,7 @@
 #include <iostream>
 #include "canboard.h"
 #include "ros/ros.h"
+#include <thread>
 class robot
 {
 private:
@@ -10,12 +11,13 @@ private:
     int arm_dof, leg_dof, CANboard_num;
     ros::NodeHandle n;
     std::vector<canboard> CANboards;
-    std::vector<canport> CANports;
 
 public:
     std::vector<motor> Motors;
+    // std::vector<std::shared_ptr<canport>> CANPorts;
+    std::vector<canport> CANPorts;
 
-    robot(std::vector<lively_serial *> *ser)
+    robot(std::vector<lively_serial *> *ser,std::condition_variable *_cv,std::mutex *_mtx)
     {
         if (n.getParam("robot/robot_name", robot_name))
         {
@@ -69,7 +71,7 @@ public:
         {
             for (size_t i = 1; i <= CANboard_num; i++) // 一个CANboard使用两个串口
             {
-                CANboards.push_back(canboard(i, ser));
+                CANboards.push_back(canboard(i, ser,_cv,_mtx));
             }
         }
 
@@ -79,12 +81,13 @@ public:
         ROS_INFO("\033[1;32mThe Serial type is %s\033[0m", Serial_Type.c_str());
         ROS_INFO("\033[1;32mThe Serial allocate type is %s\033[0m", Serial_allocate.c_str());
 
-        for (canboard cb : CANboards)
+        for (canboard &cb : CANboards)
         {
-            cb.push_CANport(&CANports);
+            cb.push_CANport(&CANPorts);
         }
-        for (canport cp : CANports)
+        for (canport &cp : CANPorts)
         {
+            // std::thread(&canport::send, &cp);
             cp.puch_motor(&Motors);
         }
         ROS_INFO("\033[1;32mThe robot has %d motors\033[0m", Motors.size());
@@ -93,6 +96,14 @@ public:
         // {
         //     std::cout<<m.get_motor_belong_canboard()<<" "<<m.get_motor_belong_canport()<<" "<<m.get_motor_id()<<std::endl;
         // }
+    }
+    void enable_send()
+    {
+        for (canport& cp : CANPorts)
+        {
+            cp.enable_send();
+        }
+        // ROS_INFO("robot ok");
     }
     ~robot() {}
 };
