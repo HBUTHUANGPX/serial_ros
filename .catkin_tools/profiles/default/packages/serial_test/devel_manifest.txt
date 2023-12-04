@@ -1,0 +1,6 @@
+serial_test
+/home/hpx/serial_ros/devel/.private/serial_test/cmake.lock /home/hpx/serial_ros/devel/./cmake.lock
+/home/hpx/serial_ros/devel/.private/serial_test/share/serial_test/cmake/serial_testConfig.cmake /home/hpx/serial_ros/devel/share/serial_test/cmake/serial_testConfig.cmake
+/home/hpx/serial_ros/devel/.private/serial_test/share/serial_test/cmake/serial_testConfig-version.cmake /home/hpx/serial_ros/devel/share/serial_test/cmake/serial_testConfig-version.cmake
+/home/hpx/serial_ros/devel/.private/serial_test/lib/pkgconfig/serial_test.pc /home/hpx/serial_ros/devel/lib/pkgconfig/serial_test.pc
+/home/hpx/serial_ros/devel/.private/serial_test/lib/serial_test/serial_t /home/hpx/serial_ros/devel/lib/serial_test/serial_t

@@ -11,14 +11,18 @@ private:
     int arm_dof, leg_dof, CANboard_num;
     ros::NodeHandle n;
     std::vector<canboard> CANboards;
+    std::vector<std::string> str;
+    std::vector<lively_serial *> ser;
 
 public:
     std::vector<motor> Motors;
     // std::vector<std::shared_ptr<canport>> CANPorts;
     std::vector<canport> CANPorts;
+    std::vector<std::thread> ser_recv_threads, send_threads;
 
-    robot(std::vector<lively_serial *> *ser,std::condition_variable *_cv,std::mutex *_mtx)
+    robot(std::condition_variable *_cv, std::mutex *_mtx)
     {
+        init_ser();
         if (n.getParam("robot/robot_name", robot_name))
         {
             // ROS_INFO("Got params robot_name: %s",robot_name.c_str());
@@ -71,7 +75,7 @@ public:
         {
             for (size_t i = 1; i <= CANboard_num; i++) // 一个CANboard使用两个串口
             {
-                CANboards.push_back(canboard(i, ser,_cv,_mtx));
+                CANboards.push_back(canboard(i, &ser, _cv, _mtx));
             }
         }
 
@@ -90,7 +94,7 @@ public:
             // std::thread(&canport::send, &cp);
             cp.puch_motor(&Motors);
         }
-        ROS_INFO("\033[1;32mThe robot has %d motors\033[0m", Motors.size());
+        ROS_INFO("\033[1;32mThe robot has %ld motors\033[0m", Motors.size());
 
         // for (motor m:Motors)
         // {
@@ -99,11 +103,32 @@ public:
     }
     void enable_send()
     {
-        for (canport& cp : CANPorts)
+        for (canport &cp : CANPorts)
         {
             cp.enable_send();
         }
         // ROS_INFO("robot ok");
+    }
+    void init_ser()
+    {
+        for (size_t i = 0; i < 4; i++)
+        {
+            str.push_back("/dev/ttyUSB" + std::to_string(i));
+        }
+        for (size_t i = 0; i < str.size(); i++)
+        {
+            lively_serial *s = new lively_serial(&str[i], 2000000, 1);
+            ser.push_back(s);
+            ser_recv_threads.push_back(std::thread(&lively_serial::recv, s));
+        }
+    }
+    void init_mutithread_send()
+    {
+        for (canport &cp : CANPorts)
+        {
+            ROS_INFO("%d %d", cp.get_canboard_id(), cp.get_canport_id());
+            send_threads.push_back(std::thread(&canport::send_d, &cp));
+        }
     }
     ~robot() {}
 };

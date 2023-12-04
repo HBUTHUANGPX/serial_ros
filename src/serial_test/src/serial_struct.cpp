@@ -20,17 +20,17 @@ void lively_serial::recv()
             if (*(uint8_t *)&_result[0] == 0xFD && *(uint8_t *)&_result[1] == 0xFE)
             {
 
-                    ROS_INFO_STREAM("");
+                    // ROS_INFO_STREAM("");
                 // printf("0x%04X\n ", *(uint16_t *)&_result[15]);
                 // printf("0x%04X\n ", crc_ccitt(0x0000, (const uint8_t *)&_result[0], sizeof(cdc_acm_tx_message_t) - 2));
 
                 if (*(uint16_t *)&_result[15] == crc_ccitt(0x0000, (const uint8_t *)&_result[0], sizeof(cdc_acm_tx_message_t) - 2))
                 {
-                    for (size_t i = 0; i < sizeof(cdc_acm_tx_message_t); i++)
-                    {
-                        printf("0x%02X ", *(uint8_t *)&_result[i]);
-                    }
-                    std::cout << std::endl;
+                    // for (size_t i = 0; i < sizeof(cdc_acm_tx_message_t); i++)
+                    // {
+                    //     printf("0x%02X ", *(uint8_t *)&_result[i]);
+                    // }
+                    // std::cout << std::endl;
                 }
             }
             else
