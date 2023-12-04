@@ -23,9 +23,14 @@ int main(int argc, char **argv)
         {
             m.send(0.0, 0.0, 0.0, 0.0, 0.0);
         }
-        // ROS_INFO_STREAM("END"); // STEP2 -> END 1.7ms  START -> END 1.71
+        // ROS_INFO_STREAM("END"); // 
         r.sleep();
     }
+    for (auto &thread : rb.ser_recv_threads)
+    {
+        thread.join();
+    }
+
     // ========弃用=========== multithread send =====================
     // rb.init_mutithread_send();
     // while (ros::ok())// 此用法为逐个电机多个串口并行发送控制指令
@@ -43,10 +48,6 @@ int main(int argc, char **argv)
     //     r.sleep();
     // }
 
-    for (auto &thread : rb.ser_recv_threads)
-    {
-        thread.join();
-    }
     ros::spin();
     return 0;
 }
