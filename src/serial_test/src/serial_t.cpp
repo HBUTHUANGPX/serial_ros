@@ -26,7 +26,7 @@ int main(int argc, char **argv)
         // ROS_INFO_STREAM("END"); // STEP2 -> END 1.7ms  START -> END 1.71
         r.sleep();
     }
-    // ============================ multithread send =====================
+    // ========弃用=========== multithread send =====================
     // rb.init_mutithread_send();
     // while (ros::ok())// 此用法为逐个电机多个串口并行发送控制指令
     // {
