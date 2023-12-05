@@ -9,18 +9,29 @@ void lively_serial::recv()
     while (ros::ok() && init_flag)
     {
 #ifdef read_by_Byte
-        _result = _ser.read(sizeof(cdc_acm_rx_message_t));
-        ROS_INFO("==================================START");
+        _result = _ser.read(2);
+        // ROS_INFO("==================================START");
         if (*(uint8_t *)&_result[0] == 0xFD && *(uint8_t *)&_result[1] == 0xFE)
         {
-            if (*(uint16_t *)&_result[15] == crc_ccitt(0x0000, (const uint8_t *)&_result[0], sizeof(cdc_acm_tx_message_t) - 2))
+            _result = _ser.read(sizeof(cdc_acm_tx_message_t)-2);
+            // for (size_t i = 0; i < _result.size(); i++)
+            // {
+            //     printf("0x%02X ",*(uint8_t *)&_result[i]);
+            // }
+            // std::cout<<std::endl;
+            memcpy(&cdc_acm_tx_message.motor_back,(const void *)&_result[0],sizeof(cdc_acm_tx_message_t) - 2);
+            // std::cout<< (int)cdc_acm_tx_message.motor_back.ID<<std::endl;
+
+            if (cdc_acm_tx_message.crc16 == crc_ccitt(0x0000, (const uint8_t *)&cdc_acm_tx_message, sizeof(cdc_acm_tx_message_t) - 2))
             {
-                auto it = Map_Motors_p.find(*(uint8_t *)&_result[2]);
+                auto it = Map_Motors_p.find(cdc_acm_tx_message.motor_back.ID);
                 if (it != Map_Motors_p.end())
                 {
-                    it->second->fresh_data(*(int32_t *)&_result[3], *(int32_t *)&_result[7], *(int32_t *)&_result[11]);
-                    ROS_INFO("%d", it->second->get_motor_id());
-                    ROS_INFO("END");
+                    it->second->fresh_data(cdc_acm_tx_message.motor_back.position,
+                                           cdc_acm_tx_message.motor_back.velocity,
+                                           cdc_acm_tx_message.motor_back.torque);
+                    // ROS_INFO("%d", it->second->get_motor_id());
+                    // ROS_INFO("END");
                 }
                 else
                 {
@@ -29,12 +40,14 @@ void lively_serial::recv()
             }
             else
             {
-                ROS_ERROR("FRAME HEAD ERROR");
+                ROS_INFO("%X %X",cdc_acm_tx_message.crc16,crc_ccitt(0x0000, (const uint8_t *)&cdc_acm_tx_message, sizeof(cdc_acm_tx_message_t) - 2));
+                memset(&cdc_acm_tx_message.motor_back,0,sizeof(cdc_acm_tx_message_t) - 2);
+                ROS_ERROR("CRC ERROR");
             }
         }
         else
         {
-            ROS_ERROR("FRAME HEAD ERROR");
+            // ROS_ERROR("FRAME HEAD ERROR");
         }
 
 #else // read avalible

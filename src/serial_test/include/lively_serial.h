@@ -21,7 +21,7 @@ private:
     std::map<int, motor *> Map_Motors_p;
     ros::Rate *r;
     int *id;
-
+    uint16_t crc_head;
 public:
     lively_serial(std::string *port, uint32_t baudrate, uint8_t debug_level)
         : _port(port), _baudrate(baudrate), _debug_level(debug_level)
@@ -49,8 +49,8 @@ public:
         else
         {
         }
-        cdc_acm_rx_message.head[0] = 0xFE;
-        cdc_acm_rx_message.head[1] = 0xFD;
+        cdc_acm_tx_message.head[1] = cdc_acm_rx_message.head[0] = 0xFE;
+        cdc_acm_tx_message.head[0] = cdc_acm_rx_message.head[1] = 0xFD;
         init_flag = true;
         // start receive thread
     }
