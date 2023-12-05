@@ -8,12 +8,13 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   serial
+  pai_msgs
 )
 
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES serial_test
- CATKIN_DEPENDS roscpp rospy std_msgs serial 
+ CATKIN_DEPENDS roscpp rospy std_msgs pai_msgs
 #  DEPENDS system_lib
 )
 
@@ -22,7 +23,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 file(GLOB_RECURSE SRC_LIST
-"src/*.cpp"
+"src/*.cc"
 )
 add_executable(serial_t src/serial_t.cpp ${SRC_LIST} )
 target_link_libraries(serial_t ${catkin_LIBRARIES})

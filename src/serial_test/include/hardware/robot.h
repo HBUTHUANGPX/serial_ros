@@ -8,21 +8,28 @@ class robot
 {
 private:
     std::string robot_name, Serial_Type, CAN_type, CANboard_type, Serial_allocate;
-    int arm_dof, leg_dof, CANboard_num;
+    int arm_dof, leg_dof, CANboard_num, Seial_baudrate;
     ros::NodeHandle n;
     std::vector<canboard> CANboards;
     std::vector<std::string> str;
     std::vector<lively_serial *> ser;
 
 public:
-    std::vector<motor> Motors;
+    std::vector<motor*> Motors;
     // std::vector<std::shared_ptr<canport>> CANPorts;
-    std::vector<canport> CANPorts;
+    std::vector<canport *> CANPorts;
     std::vector<std::thread> ser_recv_threads, send_threads;
 
     robot(std::condition_variable *_cv, std::mutex *_mtx)
     {
-        init_ser();
+        if (n.getParam("robot/Seial_baudrate", Seial_baudrate))
+        {
+            // ROS_INFO("Got params seial_baudrate: %s",seial_baudrate.c_str());
+        }
+        else
+        {
+            ROS_ERROR("Faile to get params seial_baudrate");
+        }
         if (n.getParam("robot/robot_name", robot_name))
         {
             // ROS_INFO("Got params robot_name: %s",robot_name.c_str());
@@ -71,6 +78,14 @@ public:
         {
             ROS_ERROR("Faile to get params Serial_allocate");
         }
+        
+
+        ROS_INFO("\033[1;32mThe robot name is %s\033[0m", robot_name.c_str());
+        ROS_INFO("\033[1;32mThe robot has %d CANboards\033[0m", CANboard_num);
+        ROS_INFO("\033[1;32mThe CANboard type is %s\033[0m", CANboard_type.c_str());
+        ROS_INFO("\033[1;32mThe Serial type is %s\033[0m", Serial_Type.c_str());
+        ROS_INFO("\033[1;32mThe Serial allocate type is %s\033[0m", Serial_allocate.c_str());
+        init_ser();
         if (Serial_allocate == "1for2")
         {
             for (size_t i = 1; i <= CANboard_num; i++) // 一个CANboard使用两个串口
@@ -79,55 +94,73 @@ public:
             }
         }
 
-        ROS_INFO("\033[1;32mThe robot name is %s\033[0m", robot_name.c_str());
-        ROS_INFO("\033[1;32mThe robot has %d CANboards\033[0m", CANboard_num);
-        ROS_INFO("\033[1;32mThe CANboard type is %s\033[0m", CANboard_type.c_str());
-        ROS_INFO("\033[1;32mThe Serial type is %s\033[0m", Serial_Type.c_str());
-        ROS_INFO("\033[1;32mThe Serial allocate type is %s\033[0m", Serial_allocate.c_str());
-
         for (canboard &cb : CANboards)
         {
             cb.push_CANport(&CANPorts);
         }
-        for (canport &cp : CANPorts)
+        for (canport *cp : CANPorts)
         {
             // std::thread(&canport::send, &cp);
-            cp.puch_motor(&Motors);
+            cp->puch_motor(&Motors);
         }
+        // test_ser_motor();
         ROS_INFO("\033[1;32mThe robot has %ld motors\033[0m", Motors.size());
-
         // for (motor m:Motors)
         // {
         //     std::cout<<m.get_motor_belong_canboard()<<" "<<m.get_motor_belong_canport()<<" "<<m.get_motor_id()<<std::endl;
         // }
     }
-    void enable_send()
+    void enable_send_multithread()
     {
-        for (canport &cp : CANPorts)
+        for (canport *cp : CANPorts)
         {
-            cp.enable_send();
+            cp->enable_send_multithread();
         }
         // ROS_INFO("robot ok");
     }
+    void motor_send()
+    {
+        for (canboard &cb : CANboards)
+        {
+            cb.motor_send();
+            // ROS_INFO("ok");
+        }
+    }
     void init_ser()
     {
+
         for (size_t i = 0; i < 4; i++)
         {
             str.push_back("/dev/ttyUSB" + std::to_string(i));
         }
         for (size_t i = 0; i < str.size(); i++)
         {
-            lively_serial *s = new lively_serial(&str[i], 2000000, 1);
+            // lively_serial *s = new lively_serial(&str[i], 2000000, 1);
+            lively_serial *s = new lively_serial(&str[i], Seial_baudrate, 1);
             ser.push_back(s);
             ser_recv_threads.push_back(std::thread(&lively_serial::recv, s));
         }
     }
-    void init_mutithread_send()
+    void init_mutithread_send(bool use_mutex)
     {
-        for (canport &cp : CANPorts)
+        for (canport *cp : CANPorts)
         {
-            ROS_INFO("%d %d", cp.get_canboard_id(), cp.get_canport_id());
-            send_threads.push_back(std::thread(&canport::send_d, &cp));
+            ROS_INFO("%d %d", cp->get_canboard_id(), cp->get_canport_id());
+            if (use_mutex)
+            {
+                send_threads.push_back(std::thread(&canport::send_mutithread, cp));
+            }
+            else
+            {
+                send_threads.push_back(std::thread(&canport::send_d_mutithread, cp));
+            }
+        }
+    }
+    void test_ser_motor()
+    {
+        for(lively_serial * s:ser)
+        {
+            s->test_ser_motor();
         }
     }
     ~robot() {}
