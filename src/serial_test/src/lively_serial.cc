@@ -11,6 +11,7 @@ void lively_serial::recv()
 #ifdef read_by_Byte
         _result = _ser.read(2);
         // ROS_INFO("==================================START");
+        // ROS_INFO(_ser.getPort().c_str());
         if (*(uint8_t *)&_result[0] == 0xFD && *(uint8_t *)&_result[1] == 0xFE)
         {
             _result = _ser.read(sizeof(cdc_acm_tx_message_t)-2);
@@ -31,7 +32,7 @@ void lively_serial::recv()
                                            cdc_acm_tx_message.motor_back.velocity,
                                            cdc_acm_tx_message.motor_back.torque);
                     // ROS_INFO("%d", it->second->get_motor_id());
-                    // ROS_INFO("END");
+                    ROS_INFO("END");
                 }
                 else
                 {
@@ -40,7 +41,7 @@ void lively_serial::recv()
             }
             else
             {
-                ROS_INFO("%X %X",cdc_acm_tx_message.crc16,crc_ccitt(0x0000, (const uint8_t *)&cdc_acm_tx_message, sizeof(cdc_acm_tx_message_t) - 2));
+                // ROS_INFO("%X %X",cdc_acm_tx_message.crc16,crc_ccitt(0x0000, (const uint8_t *)&cdc_acm_tx_message, sizeof(cdc_acm_tx_message_t) - 2));
                 memset(&cdc_acm_tx_message.motor_back,0,sizeof(cdc_acm_tx_message_t) - 2);
                 ROS_ERROR("CRC ERROR");
             }

@@ -22,11 +22,11 @@ int main(int argc, char **argv)
     {
         // ROS_INFO_STREAM("START");
         /////////////////////////send
-        for (motor *m : rb.Motors)
-        {
-            m->fresh_cmd(0.0, 0.0, 0.0, 0.0, 0.0);
-        }
-        rb.motor_send();
+        // for (motor *m : rb.Motors)
+        // {
+            // m->fresh_cmd(0.0, 0.0, 0.0, 0.0, 0.0);
+        // }
+        // rb.motor_send();
         ////////////////////////recv
         for (motor *m : rb.Motors)
         {
