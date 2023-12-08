@@ -5,6 +5,7 @@
 #include "serial/serial.h"
 #include "ros/ros.h"
 #include "hardware/motor.h"
+#include "livelybot_serial.h"
 class lively_serial
 {
 private:
@@ -22,6 +23,7 @@ private:
     ros::Rate *r;
     int *id;
     uint16_t crc_head;
+    // livelybot_serial lv_ser;
 public:
     lively_serial(std::string *port, uint32_t baudrate, uint8_t debug_level)
         : _port(port), _baudrate(baudrate), _debug_level(debug_level)

@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   serial
+  livelybotserial
   pai_msgs
 )
 

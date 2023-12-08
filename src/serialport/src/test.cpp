@@ -1,64 +1,54 @@
-#include <boost/asio.hpp>
-#include <iostream>
-#include <vector>
-#include <ros/ros.h>
+/*
+	Simple example to read a large amount of data from a BM device.
+	Device must have bitbang capabilities to enable this to work
 
-using namespace boost::asio;
-using boost::system::error_code;
-using std::vector;
-using std::cout;
-using std::cerr;
-using std::endl;
+	To build use the following gcc statement
+	(assuming you have the d2xx library in the /usr/local/lib directory).
+	gcc -o largeread main.c -L. -lftd2xx -Wl,-rpath /usr/local/lib
+*/
 
-io_service io;
-serial_port serial(io);
-void async_read_some_data();
-void read_handler(const error_code &ec, std::size_t bytes_transferred, vector<char>* buf) {
-    if (!ec) {
-        ROS_INFO("");
-        for (size_t i = 0; i < bytes_transferred; i++)
-        {
-            // printf("0x%02X ",*(uint8_t *)&(*buf)[i]);
-        }
-        
-        // cout.write(buf->data(), bytes_transferred);
-        // cout << endl;
+#include <stdio.h>
+#include <stdlib.h>
+#include "../include/ftd2xx.h"
+#include <time.h>
+#include "../include/livelybot_serial.h"
+#define BUF_SIZE 0x11 //
+int main(int argc, char *argv[])
+{
+	char serialNumber[] = "B";
+	livelybot_serial ser;
+	ser.LD_Open(serialNumber);
+	ser.LD_SetBaudRate(4000000);
+	ser.LD_SetLatencyTimer(1);
+	ser.LD_SetTimeouts(0, 0);
+	__uint8_t a[BUF_SIZE];
+	int j = 0;
+	struct timespec ts, st;
+	clock_gettime(CLOCK_REALTIME, &st);
+	unsigned int rt = 0;
+	while (j < 100000)
+	{
+		ser.LD_read(a, 2, &rt);
+		if (a[0] == 0xFD && a[1] == 0xFE)
+		{
+			clock_gettime(CLOCK_REALTIME, &ts);
+			printf("[%6.6f ms] ", (ts.tv_sec - st.tv_sec) * 1000 + ts.tv_nsec / 1000000.0);
+			for (size_t i = 0; i < 2; i++)
+			{
+				printf("0x%02X ", a[i]);
+			}
+			ser.LD_read(a, 15, &rt);
+			// printf("2\n");
+			for (size_t i = 0; i < 15; i++)
+			{
+				printf("0x%02X ", a[i]);
+			}
+			printf("\n");
+		}
 
-        // 继续异步读取
-        async_read_some_data();
-    } else {
-        cerr << "Error: " << ec.message() << endl;
-    }
+		j++;
+	}
 
-    // 清理缓冲区
-    delete buf;
-}
-
-void async_read_some_data() {
-    // 创建一个新的缓冲区
-    vector<char>* buf = new vector<char>(17);
-
-    // 异步读取操作
-    serial.async_read_some(buffer(*buf),
-        [buf](const error_code &ec, std::size_t bytes_transferred) {
-            read_handler(ec, bytes_transferred, buf);
-        }
-    );
-}
-
-int main() {
-    try {
-        serial.open("/dev/ttyUSB0");
-        serial.set_option(serial_port_base::baud_rate(4000000));
-
-        // 开始异步读取
-        async_read_some_data();
-
-        // io_service 的 run 方法将阻塞，直到所有异步操作完成或被取消
-        io.run();
-    } catch (std::exception &e) {
-        cerr << "Exception: " << e.what() << endl;
-    }
-
-    return 0;
+	ser.LD_Close();
+	return 0;
 }
