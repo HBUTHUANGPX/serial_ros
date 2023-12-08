@@ -8,7 +8,7 @@
 typedef struct cdc_acm_tx_message_struct
 {
     uint8_t head[2]; // 0xFD 0xFE
-    motor_back_t motor_back;
+    motor_back_raw_t motor_back_raw;
     uint16_t crc16;
 } cdc_acm_tx_message_t;
 

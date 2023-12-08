@@ -20,17 +20,17 @@ void lively_serial::recv()
             //     printf("0x%02X ",*(uint8_t *)&_result[i]);
             // }
             // std::cout<<std::endl;
-            memcpy(&cdc_acm_tx_message.motor_back,(const void *)&_result[0],sizeof(cdc_acm_tx_message_t) - 2);
+            memcpy(&cdc_acm_tx_message.motor_back_raw,(const void *)&_result[0],sizeof(cdc_acm_tx_message_t) - 2);
             // std::cout<< (int)cdc_acm_tx_message.motor_back.ID<<std::endl;
 
             if (cdc_acm_tx_message.crc16 == crc_ccitt(0x0000, (const uint8_t *)&cdc_acm_tx_message, sizeof(cdc_acm_tx_message_t) - 2))
             {
-                auto it = Map_Motors_p.find(cdc_acm_tx_message.motor_back.ID);
+                auto it = Map_Motors_p.find(cdc_acm_tx_message.motor_back_raw.ID);
                 if (it != Map_Motors_p.end())
                 {
-                    it->second->fresh_data(cdc_acm_tx_message.motor_back.position,
-                                           cdc_acm_tx_message.motor_back.velocity,
-                                           cdc_acm_tx_message.motor_back.torque);
+                    it->second->fresh_data(cdc_acm_tx_message.motor_back_raw.position,
+                                           cdc_acm_tx_message.motor_back_raw.velocity,
+                                           cdc_acm_tx_message.motor_back_raw.torque);
                     // ROS_INFO("%d", it->second->get_motor_id());
                     ROS_INFO("END");
                 }
@@ -42,7 +42,7 @@ void lively_serial::recv()
             else
             {
                 // ROS_INFO("%X %X",cdc_acm_tx_message.crc16,crc_ccitt(0x0000, (const uint8_t *)&cdc_acm_tx_message, sizeof(cdc_acm_tx_message_t) - 2));
-                memset(&cdc_acm_tx_message.motor_back,0,sizeof(cdc_acm_tx_message_t) - 2);
+                memset(&cdc_acm_tx_message.motor_back_raw,0,sizeof(cdc_acm_tx_message_t) - 2);
                 ROS_ERROR("CRC ERROR");
             }
         }

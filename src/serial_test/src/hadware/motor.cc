@@ -22,11 +22,11 @@ inline float motor::int2float(int32_t in_data, uint8_t type)
     switch (type)
     {
     case 0: // radian float pos/vel to int32
-        return (float)in_data * my_2pi / 100000.0;
+        return (float)(in_data * my_2pi / 100000.0);
     case 1: // angle float pos/vel to int32
-        return (float)in_data * 360 / 100000.0;
+        return (float)(in_data * 360.0 / 100000.0);
     case 2: // float torque to int32
-        return (float)in_data / 100000.0;
+        return (float)(in_data / 100000.0);
     default:
         return float();
     }
